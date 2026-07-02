@@ -24,10 +24,19 @@ export default function HeroSection() {
 
   return (
     <section className="relative overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-all duration-700 ease-out"
-        style={{ backgroundImage: `url(${images[active]})` }}
-      />
+      <div className="absolute inset-0">
+        {images.map((image, idx) => (
+          <div
+            key={image}
+            className={
+              `absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-out ${
+                idx === active ? 'opacity-100' : 'opacity-0'
+              }`
+            }
+            style={{ backgroundImage: `url(${image})` }}
+          />
+        ))}
+      </div>
       <div className="absolute inset-0 bg-black/55" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/80" />
 
