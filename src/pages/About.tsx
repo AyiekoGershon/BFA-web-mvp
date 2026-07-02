@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Heart, Shield, Award, Target, Eye, BookOpen } from 'lucide-react'
+import { ArrowRight, Award, Target, Eye } from 'lucide-react'
 import { siteInfo } from '../lib/data'
 
 const values = [
