@@ -17,7 +17,7 @@ export default function Header() {
             <img src={siteInfo.logo} alt={siteInfo.name} className="h-12 w-auto" />
             <div className="hidden sm:block">
               <h1 className="font-serif text-lg font-bold text-gray-900 leading-tight">{siteInfo.name}</h1>
-              <p className="text-xs text-gray-500">Ecole Notre Dame Des Anges</p>
+              <p className="text-xs text-gray-500">BFA | Migori, Mabera | Kenya</p>
             </div>
           </Link>
 

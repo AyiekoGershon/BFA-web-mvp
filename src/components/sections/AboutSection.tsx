@@ -29,7 +29,7 @@ export default function AboutSection() {
             Welcome to <span className="brand-gradient-text">Bright Future Academy</span>
           </h2>
           <p className="text-lg text-gray-600 leading-relaxed">
-            Established in {new Date().getFullYear() - 15}, Bright Future Academy (Ecole Notre Dame Des Anges) has been a beacon of quality education 
+            Established in {new Date().getFullYear() - 15}, Bright Future Academy has been a beacon of quality education 
             in Migori County, Kenya. We are committed to nurturing each child's unique potential through a balanced approach 
             that combines academic excellence with character formation.
           </p>

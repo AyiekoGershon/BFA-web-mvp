@@ -15,9 +15,9 @@ export default function TestimonialsSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((t, i) => (
-            <div key={i} className="relative bg-gray-50 rounded-2xl p-8 card-hover border border-gray-100">
+        <div className="grid gap-8 lg:grid-cols-2">
+          {testimonials.map((t, index) => (
+            <div key={index} className="relative rounded-3xl border border-slate-200/70 bg-slate-50 p-8 shadow-sm">
               <Quote className="w-10 h-10 text-primary/10 absolute top-6 right-6" />
               <div className="flex gap-1 mb-4">
                 {Array.from({ length: t.rating }).map((_, j) => (

@@ -37,7 +37,7 @@ export default function Footer() {
               <img src={siteInfo.logo} alt={siteInfo.name} className="h-12 w-auto brightness-0 invert" />
               <div>
                 <h3 className="font-serif text-xl font-bold text-white">{siteInfo.name}</h3>
-                <p className="text-sm text-gray-400">Ecole Notre Dame Des Anges</p>
+                <p className="text-sm text-gray-400">BFA | Migori, Mabera | Kenya</p>
               </div>
             </div>
             <p className="text-sm text-gray-400 mb-6 leading-relaxed">{siteInfo.description}</p>

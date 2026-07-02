@@ -31,7 +31,7 @@ export default function About() {
             <div>
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-6">Our Story</h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
-                <p>Bright Future Academy (Ecole Notre Dame Des Anges) was established with a vision to provide accessible, quality education to the children of Migori County and beyond.</p>
+                <p>Bright Future Academy was established with a vision to provide accessible, quality education to the children of Migori County and beyond.</p>
                 <p>Over the years, we have grown from humble beginnings into a thriving educational institution that serves over 500 students. Our commitment to holistic education — nurturing the mind, body, and spirit — remains at the core of everything we do.</p>
                 <p>We follow the Competency-Based Curriculum (CBC) as outlined by the Kenya Institute of Curriculum Development, ensuring our students are well-prepared for the challenges of the 21st century.</p>
               </div>

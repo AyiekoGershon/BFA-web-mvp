@@ -61,7 +61,7 @@ export const leadership = [
 export const testimonials = [
   { name: 'Mrs. Jane Wanjiku', role: 'Parent', content: 'Bright Future Academy has transformed my child\'s education. The dedicated teachers and nurturing environment have helped my daughter excel academically and socially.', rating: 5 },
   { name: 'Mr. James Omondi', role: 'Parent', content: 'I am impressed by the school\'s commitment to holistic education. The facilities are excellent and the communication with parents is outstanding.', rating: 5 },
-  { name: 'Ms. Faith Chebet', role: 'Alumna', content: 'My years at BFA laid the foundation for my success. The values, discipline, and quality education I received prepared me well for higher education.', rating: 5 },
+  { name: 'Ms. Faith Chebet', role: 'Alumna', content: 'My years at Bright Future Academy laid the foundation for my success. The values, discipline, and quality education I received prepared me well for higher education.', rating: 5 },
 ]
 
 export const faqs = [
