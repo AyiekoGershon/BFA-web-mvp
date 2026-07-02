@@ -41,7 +41,7 @@ export default function HeroSection() {
           </div>
 
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-serif font-black tracking-[-0.04em] text-white leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-5xl xl:text-6xl font-serif font-black tracking-[-0.04em] text-white leading-tight">
               Building <span className="brand-gradient-text">Bright Futures</span><br />
               With Love and Excellence
             </h1>
