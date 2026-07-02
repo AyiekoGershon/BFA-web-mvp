@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #1f4b8a;
+  --color-primary-light: #3b72c4;
+  --color-primary-dark: #143663;
+  --color-secondary: #f5f9ff;
+  --color-secondary-dark: #d9e3f4;
+  --color-gold: #f5b844;
+  --color-gold-light: #ffdc94;
+  --color-lavender: #7b6cc4;
+  --color-lavender-light: #a89ce0;
+  --color-soft-blue: #edf4ff;
+  --color-accent-light: #fff3d4;
+  --color-bg: #f8fbff;
+  --color-fg: #111827;
+  --color-muted: #e8edf6;
+  --color-muted-fg: #64748b;
+  --color-card: #ffffff;
+  --color-border: #d2dbea;
+  --color-destructive: #dc2626;
+  --color-success: #059669;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --radius-sm: calc(0.75rem - 4px);
+  --radius-md: calc(0.75rem - 2px);
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
+  }
+  a {
+    color: var(--color-primary);
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, #f0f7fe, #f3effa, #fefaf0);
+}
+
+.brand-gradient-text {
+  background: linear-gradient(135deg, #FDF0A6, #FFFFFF 20%, #F4B625 42%, #F4B625 48%, #FFFFFF 58%, #80C5FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-arrow-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background-color: rgba(15, 23, 42, 0.55);
+  color: white;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.hero-arrow-button:hover {
+  transform: translateY(-2px);
+  background-color: rgba(15, 23, 42, 0.75);
+}
+
+.dark .hero-gradient {
+  background: linear-gradient(135deg, #0D1B2A, #1A1035, #2A1F0E);
+}
+
+.card-hover {
+  transition: all 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
