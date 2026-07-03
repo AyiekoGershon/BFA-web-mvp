@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Eye, EyeOff, LogIn } from 'lucide-react'
 import { useAuth } from '../lib/supabase/auth'
 import { siteInfo } from '../lib/data'
@@ -10,8 +10,16 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signIn } = useAuth()
+  const { signIn, role: currentRole } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const requestedRole = (searchParams.get('role') || 'admin') as 'admin' | 'teacher' | 'student' | 'parent'
+
+  useEffect(() => {
+    if (currentRole) {
+      navigate(`/${currentRole}`, { replace: true })
+    }
+  }, [currentRole, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,12 +27,21 @@ export default function Login() {
     setLoading(true)
     const result = await signIn(email, password)
     setLoading(false)
+
     if (result.error) {
       setError(result.error)
-    } else {
-      const targetRoute = result.role ? `/${result.role}` : '/'
-      navigate(targetRoute)
+      return
     }
+
+    const resolvedRole = result.role ?? currentRole
+
+    if (resolvedRole && resolvedRole !== requestedRole) {
+      setError(`This account is not assigned to the ${requestedRole} portal.`)
+      return
+    }
+
+    const targetRoute = resolvedRole ? `/${resolvedRole}` : '/'
+    navigate(targetRoute)
   }
 
   return (
@@ -90,7 +107,7 @@ export default function Login() {
           </button>
 
           <p className="text-center text-sm text-gray-500">
-            Portal access is managed by the school administration. If you need an account, contact the admin office.
+            Signing in here is for the {requestedRole} portal. If you need a different role account, use the matching portal entry.
           </p>
         </form>
       </div>
