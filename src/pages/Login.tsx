@@ -1,31 +1,37 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, LogIn } from 'lucide-react'
-import { useAuth } from '../lib/supabase/auth'
+import { useAuth } from '../lib/api/auth'
 import { siteInfo } from '../lib/data'
+import type { Role } from '../lib/api/client'
 
-export default function Login() {
+interface LoginProps {
+  role?: Role
+}
+
+export default function Login({ role = 'admin' }: LoginProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signIn, role: currentRole } = useAuth()
+  const { signIn, role: currentRole, user } = useAuth()
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const requestedRole = (searchParams.get('role') || 'admin') as 'admin' | 'teacher' | 'student' | 'parent'
+  const requestedRole = role
 
+  // If already logged in with the correct role, redirect to portal
   useEffect(() => {
-    if (currentRole) {
+    if (user && currentRole === requestedRole) {
       navigate(`/${currentRole}`, { replace: true })
     }
-  }, [currentRole, navigate])
+  }, [user, currentRole, requestedRole, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const result = await signIn(email, password)
+
+    const result = await signIn(email, password, requestedRole)
     setLoading(false)
 
     if (result.error) {
@@ -33,15 +39,8 @@ export default function Login() {
       return
     }
 
-    const resolvedRole = result.role ?? currentRole
-
-    if (resolvedRole && resolvedRole !== requestedRole) {
-      setError(`This account is not assigned to the ${requestedRole} portal.`)
-      return
-    }
-
-    const targetRoute = resolvedRole ? `/${resolvedRole}` : '/'
-    navigate(targetRoute)
+    // signIn succeeded — the AuthProvider will update currentRole,
+    // and the useEffect above will handle the redirect.
   }
 
   return (
@@ -51,8 +50,10 @@ export default function Login() {
           <Link to="/">
             <img src={siteInfo.logo} alt={siteInfo.name} className="h-16 w-auto mx-auto mb-4" />
           </Link>
-          <h1 className="font-serif text-2xl font-bold text-gray-900">Welcome Back</h1>
-          <p className="text-gray-600 mt-1">Sign in to your portal account</p>
+          <h1 className="font-serif text-2xl font-bold text-gray-900">
+            {requestedRole.charAt(0).toUpperCase() + requestedRole.slice(1)} Portal
+          </h1>
+          <p className="text-gray-600 mt-1">Sign in to your {requestedRole} account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-8 space-y-5">
@@ -107,7 +108,7 @@ export default function Login() {
           </button>
 
           <p className="text-center text-sm text-gray-500">
-            Signing in here is for the {requestedRole} portal. If you need a different role account, use the matching portal entry.
+            This login is for the {requestedRole} portal. Use the matching portal entry for each role.
           </p>
         </form>
       </div>

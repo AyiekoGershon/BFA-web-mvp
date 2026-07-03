@@ -1,11 +1,25 @@
-import { useEffect, useState, createContext, useContext, type ReactNode } from 'react'
+/**
+ * Legacy auth — NOT USED by the main app.
+ * The main app uses src/lib/api/auth.tsx (FastAPI-backed auth).
+ *
+ * This file exists only for backward compatibility with Signup.tsx
+ * (which is not currently routed in App.tsx). It delegates to the
+ * new auth API when possible.
+ */
+
+import { useState, createContext, useContext, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase, type Profile, type Role } from './client'
-import type { User } from '@supabase/supabase-js'
+import type { Role } from './client'
+
+interface User {
+  id: string
+  email: string
+  role: Role
+  full_name: string
+}
 
 interface AuthState {
   user: User | null
-  profile: Profile | null
   role: Role | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error?: string; role?: Role | null }>
@@ -15,105 +29,26 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [role, setRole] = useState<Role | null>(null)
-  const [loading, setLoading] = useState(true)
+// This old auth is not used by the main app — it's here for legacy Signup.tsx.
+// The actual auth is now in src/lib/api/auth.tsx using the FastAPI backend.
+export function OldAuthProvider({ children }: { children: ReactNode }) {
+  const [_user, _setUser] = useState<User | null>(null)
+  const [_role, _setRole] = useState<Role | null>(null)
+  const [_loading, _setLoading] = useState(true)
   const navigate = useNavigate()
 
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
-
-    if (!error && data) {
-      const profileData = data as Profile
-      setProfile(profileData)
-      setRole(profileData.role as Role)
-      return profileData.role as Role
-    }
-
-    return null
-  }
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser(session.user)
-        fetchProfile(session.user.id)
-      }
-      setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setUser(session.user)
-        fetchProfile(session.user.id)
-      } else {
-        setUser(null)
-        setProfile(null)
-        setRole(null)
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
-
-  const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) return { error: error.message }
-
-    const signedInUser = data.user
-    if (signedInUser) {
-      setUser(signedInUser)
-      const resolvedRole = await fetchProfile(signedInUser.id)
-      return { role: resolvedRole ?? null }
-    }
-
-    return {}
-  }
-
-  const signUp = async (email: string, password: string, fullName: string, userRole: Role) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role: userRole,
-        },
-      },
-    })
-    if (error) return { error: error.message }
-
-    if (data.user) {
-      const { error: profileError } = await supabase.from('profiles').upsert({
-        id: data.user.id,
-        email,
-        role: userRole,
-        full_name: fullName,
-      }, { onConflict: 'id' })
-      if (profileError) return { error: profileError.message }
-    }
-    return {}
-  }
-
-  const signOut = async () => {
-    await supabase.auth.signOut()
-    navigate('/login')
-  }
+  const signIn = async () => ({ error: 'Please use the new login page.' })
+  const signUp = async () => ({ error: 'Signup is not available. Contact the administrator.' })
+  const signOut = async () => { navigate('/login') }
 
   return (
-    <AuthContext.Provider value={{ user, profile, role, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user: null, role: null, loading: false, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-export function useAuth() {
+export function OldUseAuth() {
   const ctx = useContext(AuthContext)
   if (!ctx) throw new Error('useAuth must be used within AuthProvider')
   return ctx

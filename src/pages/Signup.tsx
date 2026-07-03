@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../lib/supabase/auth'
-import type { Role } from '../lib/supabase/client'
+import { useAuth as useNewAuth } from '../lib/api/auth'
+import type { Role } from '../lib/api/client'
 import { siteInfo } from '../lib/data'
 
 const roles: { value: Role; label: string }[] = [
@@ -17,14 +17,14 @@ export default function Signup() {
   const [role, setRole] = useState<Role>('parent')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signUp } = useAuth()
+  const { signIn: signUp } = useNewAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const result = await signUp(email, password, fullName, role)
+    const result = await signUp(email, password, role)
     setLoading(false)
     if (result.error) {
       setError(result.error)

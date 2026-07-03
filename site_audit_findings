@@ -1,0 +1,181 @@
+# BFA Site Audit Report
+
+> Complete code-level review of every major page and component.
+
+---
+
+## 🔴 Critical Bugs (will break functionality)
+
+### 1. Contact Form — Submit Does Nothing
+**File:** [Contact.tsx](file:///c:/Users/Admin/Desktop/BFA/src/pages/Contact.tsx#L60)
+
+The contact form has `onSubmit={(e) => e.preventDefault()}` — it just blocks the default browser action and does nothing. No data is sent, no success message shown, no toast, nothing. **Users will think it's broken.**
+
+**Fix:** Wire it to an email API (e.g. EmailJS, Formspree, or Supabase Edge Function) and show a success state.
+
+---
+
+### 2. Admissions Form — Unused `e` Catch Parameter
+**File:** [Admissions.tsx](file:///c:/Users/Admin/Desktop/BFA/src/pages/Admissions.tsx#L64)
+
+```tsx
+} catch (e: any) {
+  setError(e.message || ...)
+```
+This is fine functionally, but OxLint may warn on it. Change to `_e` for consistency with the rest of the codebase.
+
+---
+
+### 3. Login Page — `/login` Route Has No Role Context
+**File:** [App.tsx](file:///c:/Users/Admin/Desktop/BFA/src/App.tsx#L85)
+
+The `/login` route renders `<Login />` with no `role` prop, which defaults to `role="admin"`. So anyone going to `/login` directly gets the **Admin Portal** login. This is a usability and security issue — the generic `/login` path should either redirect to a role-selector page or redirect to `/login/admin`.
+
+---
+
+### 4. Admissions — Enroll Always Assigns `class-1`
+**File:** [AdminAdmissions.tsx](file:///c:/Users/Admin/Desktop/BFA/src/pages/admin/AdminAdmissions.tsx#L52)
+
+```tsx
+class_id: 'class-1', // Default class placement
+```
+
+Every enrolled student is hardcoded to `class-1`. Admins need a class selector during enrollment. This will put all enrolled students in one class regardless.
+
+---
+
+### 5. Auth: `signOut` Always Redirects to `/login` (Not Role Login)
+**File:** [auth.tsx](file:///c:/Users/Admin/Desktop/BFA/src/lib/supabase/auth.tsx#L106)
+
+```tsx
+navigate('/login')
+```
+
+Navigates to `/login` which defaults to the Admin login (see bug #3 above). It should navigate to `/login/${role}` so teachers and parents sign in through their own portals.
+
+---
+
+### 6. `ProtectedRoute` — Race Condition When Profile Not Yet Loaded
+**File:** [ProtectedRoute.tsx](file:///c:/Users/Admin/Desktop/BFA/src/components/auth/ProtectedRoute.tsx#L27)
+
+```tsx
+if (portalRole && role && role !== portalRole) {
+  return <Navigate to={`/${role}`} replace />
+}
+```
+
+When the user first loads a protected page, `role` may still be `null` (profile fetch is async) even though `loading` is `false`. The `if (!user)` check passes (user exists), but `role` is null so the `!allowedRoles.includes(role)` check fails silently, showing the page briefly before role loads. Better to also show the spinner while `role === null && user !== null`.
+
+---
+
+## 🟡 Important Issues (affect UX / correctness)
+
+### 7. `getDbMode()` Always Returns `'live'` Before First Query
+**File:** [db.ts](file:///c:/Users/Admin/Desktop/BFA/src/lib/supabase/db.ts#L11)
+
+```tsx
+let liveDbActive = isSupabaseConfigured()
+```
+
+If the `.env` has keys set but the Supabase tables don't exist yet, `getDbMode()` returns `'live'` and the header badge shows **"Supabase Connected"** — but the first query will fail and switch to demo mode. The badge won't update (it's rendered once at mount, not reactive to `liveDbActive` changes). Users see a misleading "Connected" badge.
+
+**Fix:** Make `getDbMode()` reactive with a small event emitter or a React state/context, OR only show the badge after the first query resolves.
+
+---
+
+### 8. Admin Overview "Quick Actions" — Wrong Icon for Announcements
+**File:** [AdminOverview.tsx](file:///c:/Users/Admin/Desktop/BFA/src/pages/admin/AdminOverview.tsx#L93-94)
+
+Both "New Announcement" and "Review Admissions" use `ClipboardList` icon. Announcements should use `Megaphone`.
+
+---
+
+### 9. Admin Students Modal — `classId` Not Reset on Modal Close
+**File:** [AdminStudents.tsx](file:///c:/Users/Admin/Desktop/BFA/src/pages/admin/AdminStudents.tsx)
+
+When the modal closes (Cancel or submit success), `classId` is not reset to `classData[0].id`. If the user opens the modal a second time, the dropdown may be blank.
+
+---
+
+### 10. Hero Section — Images May 404
+**File:** [HeroSection.tsx](file:///c:/Users/Admin/Desktop/BFA/src/components/sections/HeroSection.tsx#L6-12)
+
+The hero uses local images: `/images/Home/flag.png`, `/images/Home/1.jpg`, etc. If any of these files don't exist in `/public/images/`, the hero carousel will show broken images with no fallback. There's no `onError` handler.
+
+---
+
+### 11. Google Maps Embed — Invalid Placeholder URL
+**File:** [Contact.tsx](file:///c:/Users/Admin/Desktop/BFA/src/pages/Contact.tsx#L90)
+
+The iframe `src` contains a fake placeholder embed URL (with `5f5f5f5f5f5f5f5f` in it). This will show an error in the map. Needs a real Google Maps embed URL for Migori, Kenya.
+
+---
+
+### 12. Parent Portal — No Real Data Connection
+**Files:** `src/pages/parent/ParentOverview.tsx`, `ParentChild.tsx`, `ParentResults.tsx`, etc.
+
+These pages are likely still using static/mock data and are not connected to the `db` layer. Parents won't see real data about their children.
+
+---
+
+### 13. Student & Teacher Portals — Not Connected to DB
+**Files:** `src/pages/student/`, `src/pages/teacher/`
+
+Same issue as #12. Assignments, results, timetable pages are likely still using mockup arrays and not `db.assignments.list()` etc.
+
+---
+
+## 🟢 Minor/Polish Issues
+
+### 14. Announcements Page — `created_by` Field Not Set on Create
+**File:** [AdminAnnouncements.tsx](file:///c:/Users/Admin/Desktop/BFA/src/pages/admin/AdminAnnouncements.tsx)
+
+`db.announcements.create()` is called without passing `created_by`. The logged-in admin's user ID should be included.
+
+### 15. Admissions Form — No Phone Format Validation
+**File:** [Admissions.tsx](file:///c:/Users/Admin/Desktop/BFA/src/pages/Admissions.tsx)
+
+Phone number input accepts any text. Should add `pattern` attribute for basic Kenyan phone number validation (e.g. `+254...`).
+
+### 16. `siteInfo.phone` Is a Placeholder
+**File:** [data.ts](file:///c:/Users/Admin/Desktop/BFA/src/lib/data.ts#L8)
+
+`phone: '+254 700 000 000'` is clearly a placeholder. Should be updated to the real school number before going live.
+
+### 17. Portal Sidebar — No Active State for Sub-paths
+**File:** [PortalLayout.tsx](file:///c:/Users/Admin/Desktop/BFA/src/components/portal/PortalLayout.tsx#L148)
+
+```tsx
+const active = location.pathname === item.href
+```
+
+Uses exact match. If a future page has a child route like `/admin/students/123`, the "Students" sidebar item won't highlight. Should use `location.pathname.startsWith(item.href)` (with `/admin` being the exact match exception).
+
+### 18. `Admissions` Catch Block Still Uses Named `e`
+**File:** [Admissions.tsx](file:///c:/Users/Admin/Desktop/BFA/src/pages/Admissions.tsx#L64)
+
+Minor lint consistency — same `catch (e: any)` pattern that was already fixed in other files.
+
+---
+
+## Summary Table
+
+| # | Severity | File | Issue |
+|---|---|---|---|
+| 1 | 🔴 Critical | Contact.tsx | Form submit does nothing |
+| 2 | 🔴 Critical | App.tsx | `/login` defaults to Admin portal |
+| 3 | 🔴 Critical | AdminAdmissions.tsx | Enroll hardcodes `class-1` |
+| 4 | 🔴 Critical | auth.tsx | signOut goes to wrong login |
+| 5 | 🟡 Important | ProtectedRoute.tsx | Race condition: role=null after user loads |
+| 6 | 🟡 Important | db.ts / PortalLayout.tsx | DB mode badge not reactive |
+| 7 | 🟡 Important | AdminOverview.tsx | Wrong icon for Announcements quick action |
+| 8 | 🟡 Important | AdminStudents.tsx | classId not reset on modal close |
+| 9 | 🟡 Important | HeroSection.tsx | No fallback for missing local images |
+| 10 | 🟡 Important | Contact.tsx | Fake Google Maps embed URL |
+| 11 | 🟡 Important | parent/ pages | Not connected to db layer |
+| 12 | 🟡 Important | student/ & teacher/ pages | Not connected to db layer |
+| 13 | 🟢 Minor | AdminAnnouncements.tsx | `created_by` not passed on create |
+| 14 | 🟢 Minor | Admissions.tsx | Phone validation missing |
+| 15 | 🟢 Minor | data.ts | Placeholder phone number |
+| 16 | 🟢 Minor | PortalLayout.tsx | Sidebar active state uses exact match |
+| 17 | 🟢 Minor | Admissions.tsx | Lint: named catch param `e` |

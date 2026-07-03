@@ -5,10 +5,10 @@ import {
   MessageSquare, Image, Star, Settings, LogOut, Bell, Menu, School, GraduationCap,
   HelpCircle, Download, ChevronLeft, Clock, ClipboardCheck,
 } from 'lucide-react'
-import { useAuth } from '../../lib/supabase/auth'
+import { useAuth } from '../../lib/api/auth'
 import { siteInfo } from '../../lib/data'
 import { cn } from '../../lib/utils'
-import type { Role } from '../../lib/supabase/client'
+import type { Role } from '../../lib/api/client'
 
 interface NavItem {
   label: string
@@ -100,7 +100,7 @@ export default function PortalLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const location = useLocation()
-  const { profile, role, signOut } = useAuth()
+  const { user, role, signOut } = useAuth()
 
   if (!role) return null
 
@@ -144,7 +144,7 @@ export default function PortalLayout() {
               <div className="space-y-1">
                 {section.items.map((item) => {
                   const Icon = item.icon
-                  const active = location.pathname === item.href
+                  const active = location.pathname === item.href || location.pathname.startsWith(item.href + '/')
                   return (
                     <Link
                       key={item.href}
@@ -203,10 +203,10 @@ export default function PortalLayout() {
               </button>
               <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-                  {profile?.full_name?.charAt(0) || 'U'}
+                  {user?.full_name?.charAt(0) || 'U'}
                 </div>
                 <div className="hidden sm:block">
-                  <p className="text-sm font-medium text-gray-900">{profile?.full_name}</p>
+                  <p className="text-sm font-medium text-gray-900">{user?.full_name}</p>
                   <p className="text-xs text-gray-500 capitalize">{role}</p>
                 </div>
               </div>

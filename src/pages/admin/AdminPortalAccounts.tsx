@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ShieldCheck, UserPlus, LoaderCircle } from 'lucide-react'
 import { createPortalUser } from '../../lib/supabase/admin'
-import type { Role } from '../../lib/supabase/client'
+import type { Role } from '../../lib/api/client'
 
 const roleOptions: Array<{ value: Exclude<Role, 'admin'>; label: string }> = [
   { value: 'parent', label: 'Parent' },

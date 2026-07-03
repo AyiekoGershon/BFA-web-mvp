@@ -1,4 +1,12 @@
-﻿import { supabase, type Role } from './client'
+/**
+ * Admin portal account creation — delegates to the FastAPI backend.
+ *
+ * This file replaces the old Supabase-based admin.ts. It creates portal
+ * accounts via the FastAPI backend which handles the Supabase interaction
+ * server-side, avoiding the session hijack bug.
+ */
+
+import type { Role } from '../api/client'
 
 export interface CreatePortalUserPayload {
   email: string
@@ -9,54 +17,29 @@ export interface CreatePortalUserPayload {
 
 export async function createPortalUser(payload: CreatePortalUserPayload) {
   try {
-    const sessionResult = await supabase.auth.getSession()
-    const session = sessionResult.data.session
-
-    if (!session?.access_token) {
-      return {
-        error: 'You must be signed in as an administrator to create portal accounts.',
-      }
+    // Use the auth API's portal-account endpoint (admin-only)
+    const token = localStorage.getItem('bfa_access_token')
+    if (!token) {
+      return { error: 'You must be signed in as an administrator to create portal accounts.' }
     }
 
-    const { data, error } = await supabase.auth.signUp({
-      email: payload.email,
-      password: payload.password,
-      options: {
-        data: {
-          full_name: payload.full_name,
-          role: payload.role,
-        },
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+    const response = await fetch(`${API_BASE_URL}/api/auth/portal-account`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
+      body: JSON.stringify(payload),
     })
 
-    if (error) {
-      return {
-        error: error.message,
-      }
+    const body = await response.json()
+
+    if (!response.ok) {
+      return { error: body?.error?.message || 'Failed to create portal account.' }
     }
 
-    if (data.user) {
-      const { error: profileError } = await supabase.from('profiles').upsert(
-        {
-          id: data.user.id,
-          email: payload.email,
-          role: payload.role,
-          full_name: payload.full_name,
-        },
-        { onConflict: 'id' }
-      )
-
-      if (profileError) {
-        return {
-          error: profileError.message,
-        }
-      }
-    }
-
-    return {
-      success: true,
-      user: data.user,
-    }
+    return { success: true, user: body.data }
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : 'Unexpected error while creating portal account.',

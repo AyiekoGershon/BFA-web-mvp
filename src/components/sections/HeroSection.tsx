@@ -34,7 +34,22 @@ export default function HeroSection() {
               }`
             }
             style={{ backgroundImage: `url(${image})` }}
-          />
+          >
+            {/* Fallback: show gradient if image fails to load */}
+            <img
+              src={image}
+              alt=""
+              className="hidden"
+              onError={(e) => {
+                const parent = (e.target as HTMLElement).parentElement
+                if (parent) {
+                  parent.style.backgroundImage = 'none'
+                  parent.style.backgroundColor = '#1e3a5f'
+                  parent.classList.add('bg-gradient-to-br', 'from-slate-800', 'to-primary')
+                }
+              }}
+            />
+          </div>
         ))}
       </div>
       <div className="absolute inset-0 bg-black/55" />

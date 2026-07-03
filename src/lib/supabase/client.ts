@@ -1,9 +1,6 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Legacy type exports — the new app uses src/lib/api/ for all API calls.
+// This file is kept for backward compatibility of type imports only.
+// The actual Supabase client is no longer used by the frontend.
 
 export type Role = 'admin' | 'teacher' | 'student' | 'parent'
 
@@ -48,6 +45,7 @@ export interface Teacher {
   created_at: string
 }
 
+// ... rest of type interfaces unchanged
 export interface Class {
   id: string
   name: string
