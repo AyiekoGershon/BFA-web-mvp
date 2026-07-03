@@ -14,9 +14,9 @@ import Contact from './pages/Contact'
 import Nursery from './pages/Nursery'
 import Primary from './pages/Primary'
 import Login from './pages/Login'
-import Signup from './pages/Signup'
 import PlaceholderPage from './pages/PlaceholderPage'
 import AdminOverview from './pages/admin/AdminOverview'
+import AdminPortalAccounts from './pages/admin/AdminPortalAccounts'
 import AdminStudents from './pages/admin/AdminStudents'
 import AdminTeachers from './pages/admin/AdminTeachers'
 import AdminClasses from './pages/admin/AdminClasses'
@@ -83,7 +83,6 @@ export default function App() {
 
           {/* Auth routes */}
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
 
           {/* Admin portal */}
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
@@ -91,6 +90,7 @@ export default function App() {
               <Route path="/admin" element={<AdminOverview />} />
               <Route path="/admin/students" element={<AdminStudents />} />
               <Route path="/admin/teachers" element={<AdminTeachers />} />
+              <Route path="/admin/accounts" element={<AdminPortalAccounts />} />
               <Route path="/admin/classes" element={<AdminClasses />} />
               <Route path="/admin/announcements" element={<AdminAnnouncements />} />
               <Route path="/admin/admissions" element={<AdminAdmissions />} />

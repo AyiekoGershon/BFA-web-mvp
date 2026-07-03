@@ -8,7 +8,7 @@ interface AuthState {
   profile: Profile | null
   role: Role | null
   loading: boolean
-  signIn: (email: string, password: string) => Promise<{ error?: string }>
+  signIn: (email: string, password: string) => Promise<{ error?: string; role?: Role | null }>
   signUp: (email: string, password: string, fullName: string, role: Role) => Promise<{ error?: string }>
   signOut: () => Promise<void>
 }
@@ -28,10 +28,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select('*')
       .eq('id', userId)
       .single()
+
     if (!error && data) {
-      setProfile(data as Profile)
-      setRole(data.role as Role)
+      const profileData = data as Profile
+      setProfile(profileData)
+      setRole(profileData.role as Role)
+      return profileData.role as Role
     }
+
+    return null
   }
 
   useEffect(() => {
@@ -58,8 +63,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) return { error: error.message }
+
+    const signedInUser = data.user
+    if (signedInUser) {
+      setUser(signedInUser)
+      const resolvedRole = await fetchProfile(signedInUser.id)
+      return { role: resolvedRole ?? null }
+    }
+
     return {}
   }
 

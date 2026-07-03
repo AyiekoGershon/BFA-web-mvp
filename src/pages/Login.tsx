@@ -22,7 +22,8 @@ export default function Login() {
     if (result.error) {
       setError(result.error)
     } else {
-      navigate('/')
+      const targetRoute = result.role ? `/${result.role}` : '/'
+      navigate(targetRoute)
     }
   }
 
@@ -89,8 +90,7 @@ export default function Login() {
           </button>
 
           <p className="text-center text-sm text-gray-500">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-primary font-medium hover:underline">Sign up</Link>
+            Portal access is managed by the school administration. If you need an account, contact the admin office.
           </p>
         </form>
       </div>

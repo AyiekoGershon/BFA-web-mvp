@@ -22,6 +22,7 @@ const navItems: Record<Role, { label: string; items: NavItem[] }[]> = {
       label: 'Main',
       items: [
         { label: 'Overview', icon: LayoutDashboard, href: '/admin' },
+        { label: 'Portal Accounts', icon: Users, href: '/admin/accounts' },
         { label: 'Students', icon: Users, href: '/admin/students' },
         { label: 'Teachers', icon: GraduationCap, href: '/admin/teachers' },
         { label: 'Classes', icon: School, href: '/admin/classes' },
