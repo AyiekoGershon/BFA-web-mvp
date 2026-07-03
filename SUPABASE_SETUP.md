@@ -37,12 +37,18 @@ CREATE TABLE public.profiles (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Auto-create profile on signup
+-- Auto-create profile on signup (reads role & full_name from user metadata)
+-- This is the most reliable approach — the trigger runs as DB owner (bypasses RLS).
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.profiles (id, email, role, full_name)
-  VALUES (NEW.id, NEW.email, 'parent', '');
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'role', 'parent'),
+    COALESCE(NEW.raw_user_meta_data->>'full_name', '')
+  );
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -278,6 +284,14 @@ Run these SQL commands for each table:
 ```sql
 -- Enable RLS on all tables
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- CRITICAL: Allow users to insert their own profile during signup
+CREATE POLICY "Users can insert own profile" ON public.profiles
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
+-- Allow users to update their own profile
+CREATE POLICY "Users can update own profile" ON public.profiles
+  FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.teachers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.classes ENABLE ROW LEVEL SECURITY;
