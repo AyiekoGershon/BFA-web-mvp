@@ -1,4 +1,4 @@
-import { Plus, Upload } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import { gallery } from '../../lib/data'
 
 export default function AdminGallery() {

@@ -1,4 +1,4 @@
-import { User, BookOpen, Award, Calendar } from 'lucide-react'
+import { BookOpen, Award } from 'lucide-react'
 
 export default function ParentChild() {
   return (

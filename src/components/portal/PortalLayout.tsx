@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Users, BookOpen, Calendar, Megaphone, ClipboardList, UserCheck, FileText,
-  MessageSquare, Image, Star, Settings, LogOut, Bell, Menu, X, School, GraduationCap,
-  UserPlus, HelpCircle, Download, ChevronLeft, Clock, ClipboardCheck,
+  MessageSquare, Image, Star, Settings, LogOut, Bell, Menu, School, GraduationCap,
+  HelpCircle, Download, ChevronLeft, Clock, ClipboardCheck,
 } from 'lucide-react'
 import { useAuth } from '../../lib/supabase/auth'
 import { siteInfo } from '../../lib/data'

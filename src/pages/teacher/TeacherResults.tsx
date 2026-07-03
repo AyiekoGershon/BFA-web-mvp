@@ -1,4 +1,4 @@
-import { Award, Download, Plus } from 'lucide-react'
+import { Download, Plus } from 'lucide-react'
 import DataTable from '../../components/portal/DataTable'
 
 const grades = [

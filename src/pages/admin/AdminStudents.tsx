@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Search } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import DataTable from '../../components/portal/DataTable'
 
 const mockStudents = [

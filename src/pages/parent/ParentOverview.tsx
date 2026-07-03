@@ -1,4 +1,4 @@
-import { User, BookOpen, ClipboardCheck, Bell, Calendar } from 'lucide-react'
+import { User, BookOpen, ClipboardCheck, Bell } from 'lucide-react'
 import StatCard from '../../components/portal/StatCard'
 
 export default function ParentOverview() {

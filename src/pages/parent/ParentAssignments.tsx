@@ -1,4 +1,4 @@
-import { BookOpen, Calendar, Clock } from 'lucide-react'
+import { BookOpen, Calendar } from 'lucide-react'
 
 const assignments = [
   { subject: 'Mathematics', title: 'Fractions Worksheet', due: '2025-07-10', status: 'Pending' },

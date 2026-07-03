@@ -1,4 +1,4 @@
-import { Users, GraduationCap, School, ClipboardList, TrendingUp, Calendar } from 'lucide-react'
+import { Users, GraduationCap, School, ClipboardList } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import StatCard from '../../components/portal/StatCard'
 import DataTable from '../../components/portal/DataTable'

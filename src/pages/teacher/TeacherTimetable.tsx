@@ -1,4 +1,3 @@
-import { Clock } from 'lucide-react'
 
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 const periods = ['8:00-8:40', '8:40-9:20', '9:20-10:00', '10:00-10:40', '11:00-11:40', '11:40-12:20', '12:20-1:00', '2:00-2:40', '2:40-3:20']

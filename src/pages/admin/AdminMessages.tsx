@@ -1,4 +1,4 @@
-import { Search, MessageSquare, Mail } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 
 const messages = [
   { from: 'Mr. David Ochieng', subject: 'Classroom Resources Request', date: '2025-07-02', read: false },
