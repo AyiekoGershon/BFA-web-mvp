@@ -2,16 +2,67 @@
  * Database abstraction layer — delegates to the FastAPI backend.
  *
  * All data operations go through the FastAPI backend which connects to
- * Supabase PostgreSQL. There is no demo mode or localStorage fallback —
- * the backend MUST be running and Supabase MUST be configured.
+ * Supabase PostgreSQL. Role-aware routing ensures teachers, students,
+ * and parents hit their own portal endpoints (not admin endpoints).
  */
 
 import {
   adminApi,
   teacherApi,
   studentApi,
+  parentApi,
   publicApi,
+  getRole,
 } from '../api/client'
+
+// ── Role-aware API selection ───────────────────────────────────────────────
+
+/** Returns the appropriate student API based on current role */
+function studentListApi() {
+  const role = getRole()
+  if (role === 'teacher') return () => teacherApi.getStudents()
+  if (role === 'parent') return () => parentApi.getChildren()
+  return () => adminApi.getStudents()
+}
+
+/** Returns the appropriate class API based on current role */
+function classListApi() {
+  const role = getRole()
+  if (role === 'teacher') return () => teacherApi.getClasses()
+  return () => adminApi.getClasses()
+}
+
+/** Returns the appropriate assignment API */
+function assignmentListApi() {
+  const role = getRole()
+  if (role === 'teacher') return () => teacherApi.getAssignments()
+  if (role === 'student') return () => studentApi.getAssignments()
+  if (role === 'parent') return () => parentApi.getAssignments()
+  return () => adminApi.getAnnouncements() // fallback — admin doesn't have dedicated assignment list
+}
+
+/** Returns the appropriate grades/results API */
+function gradeListApi() {
+  const role = getRole()
+  if (role === 'teacher') return () => teacherApi.getResults()
+  if (role === 'student') return () => studentApi.getResults()
+  if (role === 'parent') return () => parentApi.getResults()
+  return () => adminApi.getStudents() // fallback
+}
+
+/** Returns the appropriate timetable API */
+function timetableListApi() {
+  const role = getRole()
+  if (role === 'teacher') return () => teacherApi.getTimetable()
+  if (role === 'student') return () => studentApi.getTimetable()
+  if (role === 'parent') return () => parentApi.getTimetable()
+  return () => adminApi.getAnnouncements() // fallback
+}
+
+/** Returns the appropriate attendance API */
+function attendanceListApi() {
+  return () => teacherApi.getAttendance()
+}
 
 // ── API helpers ────────────────────────────────────────────────────────────
 
@@ -32,22 +83,11 @@ async function apiCreate(
   throw new Error('API create failed')
 }
 
-async function apiUpdate(
-  _id: string,
-  _updates: any,
-  apiCall: () => Promise<{ success: boolean; data?: any }>,
-): Promise<any> {
-  const res = await apiCall()
-  if (res.success && res.data) return res.data
-  return null
-}
-
 // ── API Layer ─────────────────────────────────────────────────────────────
-// Same interface as before — all page components continue to work.
 
 export const db = {
   students: {
-    list: () => apiList(() => adminApi.getStudents()),
+    list: () => apiList(studentListApi()),
     create: (student: any) => apiCreate(student, () => adminApi.createStudent(student)),
   },
 
@@ -57,7 +97,7 @@ export const db = {
   },
 
   classes: {
-    list: () => apiList(() => adminApi.getClasses()),
+    list: () => apiList(classListApi()),
     create: (cls: any) => apiCreate(cls, () => adminApi.createClass(cls)),
   },
 
@@ -70,25 +110,25 @@ export const db = {
     list: () => apiList(() => adminApi.getAdmissions()),
     create: (adm: any) => apiCreate({ ...adm, status: 'pending' }, () => publicApi.submitAdmission(adm)),
     updateStatus: (id: string, status: 'pending' | 'approved' | 'rejected' | 'enrolled') =>
-      apiUpdate(id, { status }, () => adminApi.updateAdmissionStatus(id, status)),
+      apiList(() => adminApi.updateAdmissionStatus(id, status)).then(() => null),
   },
 
   assignments: {
-    list: () => apiList(() => teacherApi.getAssignments()),
+    list: () => apiList(assignmentListApi()),
     create: (asg: any) => apiCreate(asg, () => teacherApi.createAssignment(asg)),
   },
 
   timetable: {
-    list: () => apiList(() => studentApi.getTimetable()),
+    list: () => apiList(timetableListApi()),
   },
 
   grades: {
-    list: () => apiList(() => studentApi.getResults()),
+    list: () => apiList(gradeListApi()),
     create: (grade: any) => apiCreate(grade, () => teacherApi.enterResults([grade])),
   },
 
   attendance: {
-    list: () => apiList(() => teacherApi.getAttendance()),
+    list: () => apiList(attendanceListApi()),
     mark: (records: any[]) => apiCreate(records, () => teacherApi.markAttendance(records)),
   },
 }

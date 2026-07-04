@@ -346,6 +346,10 @@ export const teacherApi = {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
     return request('/api/teacher/students' + qs)
   },
+  getClasses: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return request('/api/teacher/classes' + qs)
+  },
   getAssignments: () => request('/api/teacher/assignments'),
   createAssignment: (data: Record<string, any>) =>
     request('/api/teacher/assignments', { method: 'POST', body: JSON.stringify(data) }),

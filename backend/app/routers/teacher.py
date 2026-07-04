@@ -63,6 +63,17 @@ async def teacher_overview():
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# CLASSES (View Only)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@teacher_router.get("/classes", response_model=dict)
+async def teacher_list_classes():
+    """View classes. Teachers can see all classes."""
+    classes = await class_service.list_classes()
+    return success_response(data=classes)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # STUDENTS (View Only)
 # ═══════════════════════════════════════════════════════════════════════════
 

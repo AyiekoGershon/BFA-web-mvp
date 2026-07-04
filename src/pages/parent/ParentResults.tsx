@@ -1,41 +1,29 @@
-import { Award, Download } from 'lucide-react'
-
-const results = [
-  { term: 'Term 1 2025', subjects: { Math: 'A', English: 'B+', Science: 'A', Kiswahili: 'B', 'Social Studies': 'B+', CRE: 'A' } },
-  { term: 'Term 2 2024', subjects: { Math: 'B+', English: 'B', Science: 'A-', Kiswahili: 'B+', 'Social Studies': 'B', CRE: 'A' } },
-]
+import { useEffect, useState } from 'react'
+import { db } from '../../lib/supabase/db'
 
 export default function ParentResults() {
+  const [grades, setGrades] = useState<any[]>([])
+  useEffect(() => { db.grades.list().then(setGrades).catch(() => {}) }, [])
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Results</h1>
-          <p className="text-gray-500 text-sm mt-1">View academic performance</p>
-        </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary-dark transition-all">
-          <Download className="w-4 h-4" />
-          Download
-        </button>
-      </div>
-      <div className="space-y-6">
-        {results.map((term, i) => (
-          <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Award className="w-5 h-5 text-gold" />
-              {term.term}
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {Object.entries(term.subjects).map(([subject, grade]) => (
-                <div key={subject} className="p-3 bg-gray-50 rounded-xl text-center">
-                  <p className="text-xs text-gray-500">{subject}</p>
-                  <p className="text-lg font-bold text-gray-900 mt-1">{grade as string}</p>
-                </div>
+      <h1 className="text-2xl font-bold text-gray-900 mb-4">Child's Results</h1>
+      {grades.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead><tr className="border-b"><th className="text-left py-2">Student</th><th className="text-left py-2">Subject</th><th className="text-left py-2">Score</th><th className="text-left py-2">Grade</th></tr></thead>
+            <tbody>
+              {grades.map((g: any) => (
+                <tr key={g.id} className="border-b">
+                  <td className="py-2">{g.student_name || g.student_id}</td>
+                  <td className="py-2">{g.subject}</td>
+                  <td className="py-2">{g.score}%</td>
+                  <td className="py-2"><span className="px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700">{g.grade}</span></td>
+                </tr>
               ))}
-            </div>
-          </div>
-        ))}
-      </div>
+            </tbody>
+          </table>
+        </div>
+      ) : <p className="text-gray-400">No results yet.</p>}
     </div>
   )
 }
